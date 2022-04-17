@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 // importing helper functions via the added Base64.sol
+import { Base64 } from "/.libraries/Base64.sol";
 
 // inherit the contract that was imported and have access to the contract's methods
 // calls the contract from the inhereted open zeppelin import
