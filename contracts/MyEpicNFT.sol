@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 // importing helper functions via the added Base64.sol
-import { Base64 } from "/.libraries/Base64.sol";
+import { Base64 } from "./libraries/Base64.sol";
 
 // inherit the contract that was imported and have access to the contract's methods
 // calls the contract from the inhereted open zeppelin import
@@ -69,11 +69,35 @@ contract myEpicNFT  is ERC721URIStorage {
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
+        string memory combinedWord = string(abi.encodePacked(first, second, third));
 
         // concatenate all strings and close the text / svg tags
         string memory finalSvg = string(abi.encodePacked(baseSvg, first, second, third, "</text></svg>"));
+       
+       // get all of the JSON metadeta in place and base64 encode it
+       string memory json = Base64.encode(
+           bytes(
+               string(
+                   abi.encodePacked(
+                       '{"name": "',
+                       // set the title of the NFT as the generated word
+                       combinedWord,
+                       '", "description": "A highly acclaimed collection of DBZ squares.", "image": "data:image/svg+xml;base64,',
+                       // we add data:image/svg+xml;base64 and append our base64 encode svg}
+                       Base64.encode(bytes(finalSvg)),
+                       '"}'
+                   )
+               )
+           )
+       );
+
+       // prepend data:application/json;base64, to our data
+       string memory finalTokenUri = string(
+           abi.encodePacked("data:application/json;base64,", json)
+       );
+
         console.log("\n----------------");
-        console.log(finalSvg);
+        console.log(finalTokenUri);
         console.log("----------------/n");
 
         // mint the NFT to the sender
@@ -83,10 +107,12 @@ contract myEpicNFT  is ERC721URIStorage {
         // secure way to get users public address - can't "fake it", can't call anonymously
         _safeMint(msg.sender, newItemId);
 
-        // set the NFTs data
+        // update URI
+    
+        // set the NFTs data / updates URI
         // set the nft unique id and data associated with that id
         // setting the actual data that maeks the nft valuable - attributes?
-        _setTokenURI(newItemId, "data:application/json;base64,ewogICAgIm5hbWUiOiAiRXBpY0xvcmRIYW1idXJnZXIiLAogICAgImRlc2NyaXB0aW9uIjogIkFuIE5GVCBmcm9tIHRoZSBoaWdobHkgYWNjbGFpbWVkIHNxdWFyZSBjb2xsZWN0aW9uIiwKICAgICJpbWFnZSI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSEJ5WlhObGNuWmxRWE53WldOMFVtRjBhVzg5SW5oTmFXNVpUV2x1SUcxbFpYUWlJSFpwWlhkQ2IzZzlJakFnTUNBek5UQWdNelV3SWo0S0lDQWdJRHh6ZEhsc1pUNHVZbUZ6WlNCN0lHWnBiR3c2SUhkb2FYUmxPeUJtYjI1MExXWmhiV2xzZVRvZ2MyVnlhV1k3SUdadmJuUXRjMmw2WlRvZ01UUndlRHNnZlR3dmMzUjViR1UrQ2lBZ0lDQThjbVZqZENCM2FXUjBhRDBpTVRBd0pTSWdhR1ZwWjJoMFBTSXhNREFsSWlCbWFXeHNQU0ppYkdGamF5SWdMejRLSUNBZ0lEeDBaWGgwSUhnOUlqVXdKU0lnZVQwaU5UQWxJaUJqYkdGemN6MGlZbUZ6WlNJZ1pHOXRhVzVoYm5RdFltRnpaV3hwYm1VOUltMXBaR1JzWlNJZ2RHVjRkQzFoYm1Ob2IzSTlJbTFwWkdSc1pTSStSWEJwWTB4dmNtUklZVzFpZFhKblpYSThMM1JsZUhRK0Nqd3ZjM1puUGc9PSIKfQ==");
+        _setTokenURI(newItemId, finalTokenUri);
     
         // increment the token counter for the next minted NFT
         // increment is from open zeppelin
