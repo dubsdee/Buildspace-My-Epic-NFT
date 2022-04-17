@@ -28,7 +28,11 @@ contract myEpicNFT  is ERC721URIStorage {
     string[] secondWords = ["Punching", "Kicking", "Fighting", "Sleeping", "Laughing", "Eating", "Flying"];
     string[] thirdWords = ["Goku", "Vegeta", "Goten", "Trunks", "Gohan", "Master Roshi", "Buu", "Cell", "Freeza"];
 
+    // event for minting
     event NewEpicNFTMinted(address sender, uint256 tokenId);
+
+    // setting total allowed NFTs to be minted
+    uint256 totalNFTsAllowed = 50;
 
     // passing the name of the NFTs token and symbol
     constructor() ERC721 ("DragonBallNFT", "DragonBall") {
@@ -63,10 +67,19 @@ contract myEpicNFT  is ERC721URIStorage {
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
+ // function for checking number of NFTs minted vs total allowed 
+    function getTotalNFTsMintedSoFar() public view returns (uint256) {
+        return _tokenIds.current();
+    } 
+  
     // function user will hit to receive their NFT
     function makeAnEpicNFT() public {
+        // checking previous tokenId to make sure we don't mint over limit
+        require (getTotalNFTsMintedSoFar() <= totalNFTsAllowed, "Sold out!");
+        
         // get the current tokenID, starting at 0
         uint256 newItemId = _tokenIds.current();
+
 
         //randomly grab one word from each of the arrays
         string memory first = pickRandomFirstWord(newItemId);
