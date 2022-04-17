@@ -27,6 +27,9 @@ contract myEpicNFT  is ERC721URIStorage {
     string[] firstWords = ["Quick", "Hard", "Slow", "Smelly", "Awkward", "Tired", "Sneaky", "Loud"];
     string[] secondWords = ["Punching", "Kicking", "Fighting", "Sleeping", "Laughing", "Eating", "Flying"];
     string[] thirdWords = ["Goku", "Vegeta", "Goten", "Trunks", "Gohan", "Master Roshi", "Buu", "Cell", "Freeza"];
+
+    event NewEpicNFTMinted(address sender, uint256 tokenId);
+
     // passing the name of the NFTs token and symbol
     constructor() ERC721 ("DragonBallNFT", "DragonBall") {
         console.log("This is my first NFT contract. Cool, cool, cool.");
@@ -118,5 +121,7 @@ contract myEpicNFT  is ERC721URIStorage {
         // increment is from open zeppelin
         _tokenIds.increment();
          console.log("NFT with ID %s was minted for %s!", newItemId, msg.sender);
+
+        emit NewEpicNFTMinted(msg.sender, newItemId);
     }
 }
